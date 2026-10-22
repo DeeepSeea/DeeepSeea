@@ -24,6 +24,9 @@ try {
   await results.waitFor({ timeout: 20000 });
   console.log('검색 결과:', (await results.getByRole('button').allInnerTexts()).slice(0, 3));
   await results.getByRole('button').first().click();
+  // 법정동 조회까지 끝나 위치가 확정되면 '바꾸기' 버튼이 보인다
+  await page.getByRole('button', { name: '바꾸기', exact: true }).waitFor({ timeout: 20000 });
+  console.log('고른 위치:', await page.locator('.field__label + div').first().innerText().catch(() => ''));
   await page.getByLabel('월세', { exact: true }).fill('45');
   await page.getByRole('button', { name: '추가하기', exact: true }).click();
   await page.getByText(/걸어서 \d+분/).first().waitFor({ timeout: 30000 });
@@ -32,6 +35,7 @@ try {
   ok = true;
 } catch (e) {
   console.error('실패:', e.message);
+  console.error('화면 글자:\n' + (await page.locator('body').innerText().catch(() => '')).slice(0, 1500));
   await page.screenshot({ path: 'e2e/screenshots/smoke-fail.png', fullPage: true }).catch(() => {});
 }
 if (logs.length) console.log('오류 기록:\n' + logs.join('\n'));
