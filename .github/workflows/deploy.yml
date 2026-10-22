@@ -1,0 +1,61 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 매월 3일 12:17(한국 시간)에 동네 월세 시세를 새로 받아 다시 배포한다
+    - cron: '17 3 3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: 동네 월세 시세 받기
+        # 저장소 Secrets에 DATA_GO_KR_KEY가 있을 때만. 실패해도 배포는 이어간다
+        if: ${{ env.DATA_GO_KR_KEY != '' }}
+        run: npm run fetch:rent
+        continue-on-error: true
+      - run: npm run build
+      - name: e2e
+        run: |
+          npx playwright install --with-deps chromium
+          npm run e2e
+      - name: e2e 화면 올리기
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: e2e/screenshots
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
