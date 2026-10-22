@@ -3,14 +3,14 @@
  * 실제 빌드 결과를 브라우저로 끝까지 써 보는 e2e 테스트.
  * 카카오맵은 e2e/fake-kakao.js로 바꿔 끼워 키 없이도 주소 검색과 거리 계산 흐름을 검사한다.
  *
- *   npm run build && npm run e2e
+ *   npm run e2e   # 배포 키(.env.production)가 들어가지 않도록 e2e 모드로 dist-e2e에 따로 빌드한다
  *   SHOTS=e2e/screenshots npm run e2e   # 화면 캡처 저장 위치
  */
 import { readFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright';
-import { preview } from 'vite';
+import { build, preview } from 'vite';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const shotsDir = resolve(root, process.env.SHOTS ?? 'e2e/screenshots');
@@ -29,7 +29,8 @@ const RENT_STATS = {
   ],
 };
 
-const server = await preview({ root, preview: { port: 4173, strictPort: true }, logLevel: 'warn' });
+await build({ root, mode: 'e2e', logLevel: 'warn', build: { outDir: 'dist-e2e', emptyOutDir: true } });
+const server = await preview({ root, mode: 'e2e', build: { outDir: 'dist-e2e' }, preview: { port: 4173, strictPort: true }, logLevel: 'warn' });
 const base = 'http://localhost:4173/';
 const browser = await chromium.launch();
 const problems = [];
