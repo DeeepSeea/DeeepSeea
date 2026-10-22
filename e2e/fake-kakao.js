@@ -158,7 +158,8 @@
 
   class Places {
     keywordSearch(q, cb, opt = {}) {
-      if (opt.location) {
+      // 인프라 검색(버스정류장, 마트, 공원)은 주변 장소를, 그 밖의 검색어는 정해진 건물을 돌려준다
+      if (opt.location && PLACES[q]) {
         const r = placeAround(q, opt);
         later(() => cb(r, r.length ? Status.OK : Status.ZERO_RESULT));
         return;

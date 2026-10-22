@@ -62,8 +62,11 @@ export interface PlaceHit {
   location: LatLng;
 }
 
-/** 주소나 건물 이름으로 위치 후보를 찾는다. 주소 검색 결과를 먼저, 장소 검색 결과를 뒤에 둔다 */
-export async function searchLocation(appKey: string, query: string): Promise<PlaceHit[]> {
+/**
+ * 주소나 건물 이름으로 위치 후보를 찾는다. 주소 검색 결과를 먼저, 장소 검색 결과를 뒤에 둔다.
+ * near를 주면 장소 검색을 그 주변 20km로 좁혀 다른 지역의 같은 이름 건물이 섞이지 않게 한다.
+ */
+export async function searchLocation(appKey: string, query: string, near?: LatLng): Promise<PlaceHit[]> {
   const kakao = await loadKakao(appKey);
   const { services } = kakao.maps;
   type Addr = { address_name: string; x: string; y: string; road_address?: { address_name: string; building_name?: string } | null };
@@ -71,7 +74,13 @@ export async function searchLocation(appKey: string, query: string): Promise<Pla
 
   const [addrs, places] = await Promise.all([
     callService<Addr>(kakao, (cb) => new services.Geocoder().addressSearch(query, cb)),
-    callService<Place>(kakao, (cb) => new services.Places().keywordSearch(query, cb, { size: 10 })),
+    callService<Place>(kakao, (cb) =>
+      new services.Places().keywordSearch(
+        query,
+        cb,
+        near ? { size: 10, location: new kakao.maps.LatLng(near.lat, near.lng), radius: 20000 } : { size: 10 },
+      ),
+    ),
   ]);
 
   const hits: PlaceHit[] = [

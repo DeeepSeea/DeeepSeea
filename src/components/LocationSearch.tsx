@@ -15,10 +15,12 @@ interface Props {
   kakaoKey: string;
   value: PickedLocation | null;
   onChange: (v: PickedLocation | null) => void;
+  /** 이 근처 장소를 먼저 찾는다(학교 위치) */
+  near?: LatLng;
 }
 
 /** 주소나 건물 이름으로 검색해 후보 위치를 고른다 */
-export function LocationSearch({ kakaoKey, value, onChange }: Props) {
+export function LocationSearch({ kakaoKey, value, onChange, near }: Props) {
   const [query, setQuery] = useState('');
   const [hits, setHits] = useState<PlaceHit[] | null>(null);
   const [busy, setBusy] = useState(false);
@@ -30,7 +32,7 @@ export function LocationSearch({ kakaoKey, value, onChange }: Props) {
     setBusy(true);
     setError('');
     try {
-      setHits(await searchLocation(kakaoKey, q));
+      setHits(await searchLocation(kakaoKey, q, near));
     } catch (e) {
       setError((e as Error).message);
     } finally {

@@ -108,7 +108,7 @@ export default function CandidateForm({ editId }: { editId?: string }) {
           <TextField label="이름" placeholder="예: 정문 앞 원룸" value={name} onChange={(e) => setName(e.target.value)} maxLength={30} />
 
           {kakaoKey ? (
-            <LocationSearch kakaoKey={kakaoKey} value={picked} onChange={setPicked} />
+            <LocationSearch kakaoKey={kakaoKey} value={picked} onChange={setPicked} near={settings.school} />
           ) : (
             <TextField
               label="주소"
