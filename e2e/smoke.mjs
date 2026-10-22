@@ -32,6 +32,8 @@ try {
   await page.getByText(/걸어서 \d+분/).first().waitFor({ timeout: 30000 });
   const rows = await page.locator('ul .list-row').allInnerTexts();
   console.log('인프라 계산 결과:\n' + rows.map((r) => '  ' + r.replace(/\n+/g, ' | ')).join('\n'));
+  const missing = rows.filter((r) => r.includes('정보 없음')).map((r) => r.split('\n')[0]);
+  if (missing.length) console.log('::warning::자동으로 못 찾은 항목: ' + missing.join(', '));
   ok = true;
 } catch (e) {
   console.error('실패:', e.message);

@@ -26,7 +26,7 @@
     SW8: { name: '가천대역 수인분당선', category: '교통,수송 > 지하철,전철 > 수인분당선', north: 600, east: -300 },
     MT1: { name: '이마트 성남점', category: '가정,생활 > 대형마트 > 이마트', north: -1600, east: 1200 },
     CS2: { name: 'GS25 가천점', category: '가정,생활 > 편의점 > GS25', north: 60, east: 40 },
-    버스정류장: { name: '가천대학교.가천대역', category: '교통,수송 > 교통시설 > 버스정류장', north: 90, east: -80 },
+    정류장: { name: '가천대학교.가천대역', category: '교통,수송 > 교통시설 > 버스정류장', north: 90, east: -80 },
     마트: { name: '복정 할인마트', category: '가정,생활 > 슈퍼마켓', north: 250, east: 200 },
     공원: { name: '복정근린공원', category: '여행 > 공원 > 근린공원', north: -300, east: 260 },
   };

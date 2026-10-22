@@ -123,7 +123,11 @@ interface PlaceResult {
  * 마트는 대형마트(MT1)와 동네 슈퍼를 함께 찾아 더 가까운 곳을 쓴다.
  */
 const SEARCHES: Record<Exclude<InfraKey, 'school'>, { category?: string; keyword?: string; radius: number; accept?: (p: PlaceResult) => boolean }[]> = {
-  bus: [{ keyword: '버스정류장', radius: 1500, accept: (p) => /버스정류장|정류장|정류소/.test(`${p.category_name} ${p.place_name}`) }],
+  // '버스정류장'만으로는 결과가 비는 곳이 있어 '정류장'으로도 찾는다
+  bus: [
+    { keyword: '버스정류장', radius: 1500, accept: (p) => /정류장|정류소/.test(`${p.category_name} ${p.place_name}`) },
+    { keyword: '정류장', radius: 1500, accept: (p) => /버스|정류장|정류소/.test(p.category_name) },
+  ],
   subway: [{ category: 'SW8', radius: 5000 }],
   mart: [
     { category: 'MT1', radius: 5000 },
